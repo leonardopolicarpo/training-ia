@@ -1,34 +1,41 @@
 import pandas as pd
 
-# Carregando o dataset de treino. O Pandas transforma o arquivo CSV
-# em uma estrutura de dados chamada DataFrame.
-print("Carregando o arquivo train.csv...")
+# --- FASE 1: ANÁLISE EXPLORATÓRIA ---
+
+print("Carregando o arquivo data/train.csv...")
 df_train = pd.read_csv('data/train.csv')
 print("Arquivo carregado com sucesso!\n")
 
 
-# --- INÍCIO DA ANÁLISE EXPLORATÓRIA ---
+# --- FASE 2: LIMPEZA E PREPARAÇÃO DOS DADOS ---
 
-# O comando .head() mostra 5 primeiras linhas para termos uma ideia da estrutura.
-print("--- 1. Primeiras 5 linhas dos dados (head) ---")
-print(df_train.head())
-print("-" * 50 + "\n")
+print("--- 2. Iniciando limpeza dos dados ---")
+
+# 2.1. Lidando com a coluna 'Cabin'
+print("Passo 2.1: Removendo a coluna 'Cabin'...")
+df_train.drop('Cabin', axis=1, inplace=True)
+print("Coluna 'Cabin' removida.\n")
+
+# 2.2. Lidando com a coluna 'Embarked'
+print("Passo 2.2: Preenchendo valores faltantes em 'Embarked'...")
+porto_mais_frequente = df_train['Embarked'].mode()[0]
+print(f"O porto mais frequente é: {porto_mais_frequente}")
+# CORREÇÃO: Usando o método recomendado para evitar o FutureWarning
+df_train['Embarked'] = df_train['Embarked'].fillna(porto_mais_frequente)
+print("Valores faltantes em 'Embarked' preenchidos.\n")
+
+# 2.3. Lidando com a coluna 'Age'
+print("Passo 2.3: Preenchendo valores faltantes em 'Age' com a mediana...")
+# Primeiro, calculamos a mediana das idades existentes.
+idade_mediana = df_train['Age'].median()
+print(f"A idade mediana é: {idade_mediana:.2f} anos")
+# Agora, preenchemos os valores nulos com essa mediana.
+df_train['Age'] = df_train['Age'].fillna(idade_mediana)
+print("Valores faltantes em 'Age' preenchidos.\n")
 
 
-# Resumo técnico dos dados
-# O comando .info() mostra:
-# - Quantas linhas (Entries)
-# - Cada uma das colunas (Column)
-# - Quantos valores NÃO NULOS existem em cada coluna (Non-Null Count) 
-# - O tipo de dado de cada coluna (Dtype) -> object = texto, int64 = inteiro, float64 = decimal
-print("--- 2. Resumo técnico dos dados (info) ---")
+# --- VERIFICAÇÃO PÓS-LIMPEZA ---
+print("--- 3. Resumo técnico FINAL ---")
+# Verificando o .info() novamente. Todas as colunas agora devem ter 891 non-null.
 df_train.info()
-print("-" * 50 + "\n")
-
-
-# Obtendo um resumo estatístico das colunas numéricas
-# O comando .describe() calcula estatísticas básicas (média, desvio padrão, mínimo, máximo, etc.)
-# para todas as colunas que contêm números.
-print("--- 3. Resumo estatístico dos dados (describe) ---")
-print(df_train.describe())
 print("-" * 50 + "\n")
