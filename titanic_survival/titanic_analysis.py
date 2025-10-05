@@ -1,41 +1,48 @@
 import pandas as pd
 
 # --- FASE 1: ANÁLISE EXPLORATÓRIA ---
-
 print("Carregando o arquivo data/train.csv...")
 df_train = pd.read_csv('data/train.csv')
 print("Arquivo carregado com sucesso!\n")
 
 
-# --- FASE 2: LIMPEZA E PREPARAÇÃO DOS DADOS ---
-
+# --- FASE 2: LIMPEZA DOS DADOS ---
 print("--- 2. Iniciando limpeza dos dados ---")
 
 # 2.1. Lidando com a coluna 'Cabin'
-print("Passo 2.1: Removendo a coluna 'Cabin'...")
 df_train.drop('Cabin', axis=1, inplace=True)
-print("Coluna 'Cabin' removida.\n")
 
 # 2.2. Lidando com a coluna 'Embarked'
-print("Passo 2.2: Preenchendo valores faltantes em 'Embarked'...")
 porto_mais_frequente = df_train['Embarked'].mode()[0]
-print(f"O porto mais frequente é: {porto_mais_frequente}")
-# CORREÇÃO: Usando o método recomendado para evitar o FutureWarning
 df_train['Embarked'] = df_train['Embarked'].fillna(porto_mais_frequente)
-print("Valores faltantes em 'Embarked' preenchidos.\n")
 
 # 2.3. Lidando com a coluna 'Age'
-print("Passo 2.3: Preenchendo valores faltantes em 'Age' com a mediana...")
-# Primeiro, calculamos a mediana das idades existentes.
 idade_mediana = df_train['Age'].median()
-print(f"A idade mediana é: {idade_mediana:.2f} anos")
-# Agora, preenchemos os valores nulos com essa mediana.
 df_train['Age'] = df_train['Age'].fillna(idade_mediana)
-print("Valores faltantes em 'Age' preenchidos.\n")
+
+print("Limpeza de valores nulos concluída.\n")
 
 
-# --- VERIFICAÇÃO PÓS-LIMPEZA ---
-print("--- 3. Resumo técnico FINAL ---")
-# Verificando o .info() novamente. Todas as colunas agora devem ter 891 non-null.
+# --- FASE 3: ENGENHARIA DE FEATURES (ENCODING) ---
+print("--- 3. Convertendo colunas de texto para numéricas (One-Hot Encoding) ---")
+
+# Selecionamos as colunas que queremos 'traduzir'
+colunas_para_converter = ['Sex', 'Embarked']
+
+# Usamos a função get_dummies do Pandas para fazer a mágica.
+# drop_first=True é uma boa prática para evitar redundância (se não é male, tem que ser female).
+df_train = pd.get_dummies(df_train, columns=colunas_para_converter, drop_first=True)
+
+print("Colunas convertidas com sucesso.\n")
+
+
+# --- VERIFICAÇÃO FINAL ---
+print("--- 4. Resumo técnico FINAL ---")
 df_train.info()
 print("-" * 50 + "\n")
+
+print("--- 5. Primeiras 5 linhas dos dados FINAIS ---")
+# Observe as novas colunas no final do DataFrame!
+print(df_train.head())
+print("-" * 50 + "\n")
+
